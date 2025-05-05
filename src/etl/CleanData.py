@@ -1,6 +1,7 @@
+from src.storage.MongoDBManager import MongoDBManager
 import re
 
-class Cleaner:
+class CleanData:
     def __init__(self):
         print("Limpiando datos...")
 
