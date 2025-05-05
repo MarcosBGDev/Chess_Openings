@@ -1,2 +1,2 @@
-from .fetch_data import ChessDownloader
-from .clean_data import Cleaner
+from .FetchData import ChessDownloader
+from .CleanData import Cleaner

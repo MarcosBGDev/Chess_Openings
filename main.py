@@ -1,36 +1,36 @@
-from src.api.Leaderboards import Leaderboards
-from src.api.Games import Games
-import time
+from src.api.Chesscom import Chesscom
+from src.storage.MongoDBManager import MongoDBManager
+from src.utils.Helpers import Helpers
 import pandas as pd
 import os
+client = Chesscom()
 
-leaderboard_client= Leaderboards()
+helper = Helpers()
 
-modalities = leaderboard_client.get_modalities_leaderboards() #Obtiene los diferentes modos de juego
+modalities = ["live_blitz", "live_bullet", "live_rapid"]
+clean_modalities = ["blitz", "bullet", "rapid"]
+n_top=6
+players_data = client.get_all_top_players(modalities,n_top)
+players_list = helper.extract_unique_usernames(players_data)
+print(players_list)
+start_year = 2023
+end_year = 2024
 
-chosen_modality = leaderboard_client.choose_modality(modalities) #Devuelve la posición de la modalidad elegida
+database_name = "ChessDB_" + str(start_year) + "-" + str(end_year) + "Top_" + str(n_top)
+db_manager = MongoDBManager(database_name)
 
-time.sleep(1) #Pequeña pausa para que no falle la API
+for player in players_list:
+    for year in range(start_year, end_year + 1):
+        games = client.get_filtered_games(player, year, clean_modalities)
+        print("Buscando partidas para jugador, ", player, " en el año ", year)
+        for game in games:
+            db_manager.insert_game("games", {
+                "username_asociated": player,
+                "white_player": game.get("white",{}).get("result"),
+                "black_player": game.get("black", {}).get("result"),
+                "end_time": game.get("end_time"),
+                "pgn": game.get("pgn")
+            })
 
-players_list = leaderboard_client.get_players_leaderboards(modalities[chosen_modality])
 
-print("Jugadores de la categoría ", modalities[chosen_modality], ":\n ",players_list)
 
-games_client = Games()
-
-months = games_client.get_months() #Devuelve la sucesuón de los meses en formato String ("01","02",...)
-
-clean_modalities = leaderboard_client.fix_modalities(modalities) #Estandariza los nombres de los modos de juego
-
-year="2024"
-csv_name = "Partidas_" + clean_modalities[chosen_modality]+"_"+year+".csv"
-
-if not os.path.exists(csv_name):
-    #Crear el archivo CSV
-    df = pd.DataFrame(columns=["Jugador", "Fecha", "Modalidad", "Resultado Blancas", "Resultado Negras", "Apertura"])
-    df.to_csv(csv_name, index=False)
-
-for player in range(len(players_list)):
-    print("Buscando partidas del jugador ", players_list[player])
-    for month in months:
-        games_client.get_games_games(players_list[player], month, year, clean_modalities[chosen_modality])
