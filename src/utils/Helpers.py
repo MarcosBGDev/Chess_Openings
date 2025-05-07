@@ -13,9 +13,3 @@ class Helpers:
     @staticmethod
     def extract_unique_usernames(players):
         return list({player["username"] for player in players})
-
-
-    @staticmethod
-    def convert_int_to_time(timestamp):
-        date = datetime.fromtimestamp(timestamp)
-        return date

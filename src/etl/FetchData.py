@@ -50,13 +50,13 @@ class FetchData:
 
     #||||||||||||||||Obtener partidas||||||||||||||||||||||||||
 
-    def get_filtered_games(self, username, year, modalities):
+    def get_all_games(self, username, year, modalities):
         month_list = self.helper.get_months()
         year = str(year)
         for month in month_list:
             games = self.chesscom_client.send_games_request(username, month, year)
             for game in games:
-                if game.get("time_class") in modalities and game.get("white", {}).get("username","").lower() == username.lower():
+                if game.get("time_class") in modalities:
                     yield game
 
     def fetch_and_store_games(self, players_list, start_year, end_year, modalities, n_top):
@@ -66,10 +66,11 @@ class FetchData:
         for player in players_list:
             for year in range(start_year, end_year + 1):
                 print(f"Buscando partidas para jugador {player} en el año {year}")
-                games = self.get_filtered_games(player, year, modalities)
+                games = self.get_all_games(player, year, modalities)
                 for game in games:
                     db_manager.insert_game("games", {
                         "username_asociated": player,
+                        "modality": game.get("time_class"),
                         "white_player": game.get("white", {}).get("result"),
                         "black_player": game.get("black", {}).get("result"),
                         "end_time": game.get("end_time"),
