@@ -14,9 +14,9 @@ class MongoDBManager:
         collection = self.db[collection_name]
         collection.insert_many(games)
 
-    def find_games(self, collection_name, query={}):
+    def get_all_documents(self, collection_name, query):
         collection = self.db[collection_name]
-        return list(collection.find(query))
+        return collection.find(query)
 
     def drop_collection(self, collection_name):
         self.db[collection_name].drop()
