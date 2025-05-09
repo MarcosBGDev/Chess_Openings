@@ -65,10 +65,14 @@ class FetchData:
                 print(f"Buscando partidas para jugador {player} en el año {year}")
                 games = self.get_all_games(player, year)
                 for game in games:
+                    pgn = game.get("pgn")
+                    if not isinstance(pgn, str) or not pgn.strip():
+                        continue
                     db_manager.insert_game("raw_games", {
                         "associated_username": player,
                         "time_class": game.get("time_class"),
                         "time_control": game.get("time_control"),
+                        "rules": game.get("rules"),
                         "white_result": game.get("white", {}).get("result"),
                         "white_username": game.get("white", {}).get("username"),
                         "black_result": game.get("black", {}).get("result"),

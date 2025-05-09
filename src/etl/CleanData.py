@@ -38,11 +38,12 @@ class CleanData:
                 "associated_username": game.get("associated_username"),
                 "time_class": game.get("time_class"),
                 "time_control": game.get("time_control"),
+                "rules": game.get("rules"),
                 "white_username": game.get("white_username", {}),
                 "white_result": self.normalize_result(game.get("white_result")),
                 "black_username": game.get("black_username"),
                 "black_result": self.normalize_result(game.get("black_result")),
-                #"start_time": self.extract_start_time_from_pgn(game.get("pgn", "")),
+                "start_time": self.extract_start_time_from_game(game),
                 "end_date": self.get_date_from_timestamp(game.get("end_time")),
                 "end_time": self.get_time_from_timestamp(game.get("end_time")),
                 "opening_name": self.extract_opening_from_pgn(game.get("pgn", ""))
@@ -97,17 +98,22 @@ class CleanData:
         return "Unknown"
 
     @staticmethod
-    def extract_start_time_from_pgn(pgn: str) -> str:
-        # Extrae el StartTime de un string PGN
+    def extract_start_time_from_game(game: dict) -> str:
+        # Extrae el StartTime del campo "pgn" de una partida
+        game_id = game.get("_id", "Unknown ID")
+        pgn = game.get("pgn")
+
         if not isinstance(pgn, str):
-            logging.warning(f"[extract_start_time_from_pgn] PGN inválido o None: {pgn}")
+            logging.warning(
+                f"[extract_start_time_from_game] PGN inválido o None para la partida con ID {game_id}: {pgn}")
             return "Unknown"
 
         match = re.search(r'\[StartTime\s+"(\d{2}:\d{2}:\d{2})"\]', pgn)
         if match:
             return match.group(1)
 
-        logging.warning(f"[extract_start_time_from_pgn] No se encontró StartTime en PGN:\n{pgn}")
+        logging.warning(
+            f"[extract_start_time_from_game] No se encontró StartTime en la partida con ID {game_id}.\nPGN:\n{pgn}")
         return "Unknown"
 
     @staticmethod
