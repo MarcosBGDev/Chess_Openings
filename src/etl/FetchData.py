@@ -61,23 +61,41 @@ class FetchData:
         db_manager = MongoDBManager(db_name)
 
         for player in players_list:
-            for year in range(start_year, end_year + 1):
-                print(f"Buscando partidas para jugador {player} en el año {year}")
-                games = self.get_all_games(player, year)
-                for game in games:
-                    pgn = game.get("pgn")
-                    if not isinstance(pgn, str) or not pgn.strip():
-                        continue
-                    db_manager.insert_game("raw_games", {
-                        "associated_username": player,
-                        "time_class": game.get("time_class"),
-                        "time_control": game.get("time_control"),
-                        "rules": game.get("rules"),
-                        "white_result": game.get("white", {}).get("result"),
-                        "white_username": game.get("white", {}).get("username"),
-                        "black_result": game.get("black", {}).get("result"),
-                        "black_username": game.get("black", {}).get("username"),
-                        "end_time": game.get("end_time"),
-                        "pgn": game.get("pgn")
-                    })
+            self._process_player_games(player, start_year, end_year, db_manager)
+
         db_manager.close_connection()
+
+    def _process_player_games(self, player, start_year, end_year, db_manager):
+        for year in range(start_year, end_year + 1):
+            print(f"Buscando partidas para jugador {player} en el año {year}")
+            games = self.get_all_games(player, year)
+            for game in games:
+                if self._is_valid_game(game):
+                    new_game = self._prepare_game_for_insert(game, player)
+                    db_manager.insert_game("raw_games", new_game)
+
+    @staticmethod
+    def _is_valid_game(game):
+        pgn = game.get("pgn")
+        return isinstance(pgn, str) and pgn.strip()
+
+    @staticmethod
+    def _prepare_game_for_insert(game, player):
+        return {
+            "associated_username": player,
+            "time_class": game.get("time_class"),
+            "time_control": game.get("time_control"),
+            "rules": game.get("rules"),
+            "white_result": game.get("white", {}).get("result"),
+            "white_username": game.get("white", {}).get("username"),
+            "black_result": game.get("black", {}).get("result"),
+            "black_username": game.get("black", {}).get("username"),
+            "end_time": game.get("end_time"),
+            "pgn": FetchData.strip_pgn_moves(game.get("pgn"))
+        }
+
+    @staticmethod
+    def strip_pgn_moves(pgn: str) -> str:
+        if isinstance(pgn, str):
+            return pgn.split("\n\n")[0]
+        return ""
