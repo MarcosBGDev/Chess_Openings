@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime, timezone
 from src.storage.MongoDBManager import MongoDBManager
 from src.etl.CleanConfig import CleanConfig
@@ -24,31 +23,15 @@ class CleanData:
         self.query_builder = QueryBuilder()
 
     def clean(self):
-        # Obtener las partidas  desde la base de datos
         db_name = f"ChessDB_{self.config.start_year}-{self.config.end_year}_Top_{self.config.n_top}"
         db_manager = MongoDBManager(db_name)
-        query = {}
-        query.update(self.query_builder.filter_by_modality(self.config.modalities))
-        query.update(self.query_builder.filter_white_games())
 
-        filtered_games = db_manager.get_all_documents("raw_games", query)
+        filtered_games = self.get_filtered_games(db_manager)
 
         for game in filtered_games:
-            cleaned_game = {
-                "associated_username": game.get("associated_username"),
-                "time_class": game.get("time_class"),
-                "time_control": game.get("time_control"),
-                "rules": game.get("rules"),
-                "white_username": game.get("white_username", {}),
-                "white_result": self.normalize_result(game.get("white_result")),
-                "black_username": game.get("black_username"),
-                "black_result": self.normalize_result(game.get("black_result")),
-                "start_time": self.extract_start_time_from_game(game),
-                "end_date": self.get_date_from_timestamp(game.get("end_time")),
-                "end_time": self.get_time_from_timestamp(game.get("end_time")),
-                "opening_name": self.extract_opening_from_pgn(game.get("pgn", ""))
-            }
+            cleaned_game = self.build_cleaned_game(game)
             db_manager.insert_game("clean_games", cleaned_game)
+
         db_manager.close_connection()
 
     @staticmethod
@@ -62,20 +45,6 @@ class CleanData:
         if isinstance(timestamp, int):
             return datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime('%Y-%m-%d')
         return "Unknown"
-
-    @staticmethod
-    def is_valid_color(game):
-        # Devuelve True si el jugador asociado juaga con blancas
-        white_username = game.get("white_username", "").lower()
-        associated_username = game.get("associated_username", "").lower()
-        if white_username == associated_username:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def is_valid_modality(game, modalities):
-        return game.get("time_class", "").lower() in modalities
 
     @staticmethod
     def extract_opening_from_pgn(pgn: str) -> str:
@@ -98,24 +67,39 @@ class CleanData:
         return "Unknown"
 
     @staticmethod
-    def extract_start_time_from_game(game: dict) -> str:
-        # Extrae el StartTime del campo "pgn" de una partida
-        game_id = game.get("_id", "Unknown ID")
-        pgn = game.get("pgn")
-
+    def extract_start_time_from_pgn(pgn: str) -> str:
+        # Extrae el StartTime de un string PGN
         if not isinstance(pgn, str):
-            logging.warning(
-                f"[extract_start_time_from_game] PGN inválido o None para la partida con ID {game_id}: {pgn}")
             return "Unknown"
 
-        match = re.search(r'\[StartTime\s+"(\d{2}:\d{2}:\d{2})"\]', pgn)
+        match = re.search(r'\[StartTime\s+"(\d{2}:\d{2}:\d{2})"]', pgn)
         if match:
             return match.group(1)
 
-        logging.warning(
-            f"[extract_start_time_from_game] No se encontró StartTime en la partida con ID {game_id}.\nPGN:\n{pgn}")
         return "Unknown"
 
     @staticmethod
     def normalize_result(result: str) -> str:
         return CleanData.RESULT_NORMALIZATION.get(result.lower(), "unknown")
+
+    def get_filtered_games(self, db_manager):
+        query = {}
+        query.update(self.query_builder.filter_by_modality(self.config.modalities))
+        query.update(self.query_builder.filter_white_games())
+        return db_manager.get_all_documents("raw_games", query)
+
+    def build_cleaned_game(self, game):
+        return {
+            "associated_username": game.get("associated_username"),
+            "time_class": game.get("time_class"),
+            "time_control": game.get("time_control"),
+            "rules": game.get("rules"),
+            "white_username": game.get("white_username", {}),
+            "white_result": self.normalize_result(game.get("white_result")),
+            "black_username": game.get("black_username"),
+            "black_result": self.normalize_result(game.get("black_result")),
+            "start_time": self.extract_start_time_from_pgn(game.get("pgn", "")),
+            "end_date": self.get_date_from_timestamp(game.get("end_time")),
+            "end_time": self.get_time_from_timestamp(game.get("end_time")),
+            "opening_name": self.extract_opening_from_pgn(game.get("pgn", ""))
+        }

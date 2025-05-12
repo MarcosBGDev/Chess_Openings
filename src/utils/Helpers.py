@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 class Helpers:
     def __init__(self):
@@ -13,3 +13,8 @@ class Helpers:
     @staticmethod
     def extract_unique_usernames(players):
         return list({player["username"] for player in players})
+
+    @staticmethod
+    def get_current_year() -> int:
+        """ Devuelve el año actual"""
+        return datetime.datetime.now().year
