@@ -20,6 +20,7 @@ n_top, start_year, end_year = ParameterValidator.ask_parameters()
 
 players_data = fetchDataClient.get_all_top_players(modalities,n_top)
 players_list = helper.extract_unique_usernames(players_data)
+print(players_data)
 print(players_list)
 
 """
