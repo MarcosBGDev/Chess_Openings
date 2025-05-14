@@ -9,7 +9,7 @@ class FetchData:
     #||||||||||||||||Obtener jugadores de la API|||||||||||||||||||||||||||
 
     def extract_top_players_data(self, leaderboard_data, modality, top_n):
-        """ Devuelve una lista de  datos de jugadores (username, score, etc.) de una modalidad concreta. """
+        """ Devuelve una lista de datos de jugadores (username, score, etc.) de una modalidad concreta. """
         if modality not in leaderboard_data:
             print(f"Modalidad '{modality}' no encontrada en el leaderboard.")
             return []
@@ -85,7 +85,7 @@ class FetchData:
     @staticmethod
     def is_valid_game(game):
         """
-        Comprueba si una partida contiene el campo "PNG" necesario para el analisis
+        Comprueba si una partida contiene el campo "PNG" necesario para el análisis
         """
         pgn = game.get("pgn")
         return isinstance(pgn, str) and pgn.strip()

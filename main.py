@@ -23,12 +23,12 @@ players_list = helper.extract_unique_usernames(players_data)
 print(players_data)
 print(players_list)
 
-"""
+
 fetchDataClient.fetch_and_store_games(players_list, start_year, end_year, n_top)
 
 config = CleanConfig(start_year, end_year, n_top, clean_modalities, "white")
 clean_data = CleanData(config)
 clean_data.clean()
-"""
+
 
 
