@@ -4,7 +4,7 @@ class Visualization:
     def __init__(self, data):
         self.data = data
     @staticmethod
-    def show(params, segmentation):
+    def show():
         st.markdown("#### Visualizaciones")
 
     def show_opening_graph(self, modality, year):

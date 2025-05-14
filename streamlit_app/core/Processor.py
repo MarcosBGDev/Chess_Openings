@@ -1,4 +1,3 @@
-import src.etl.CleanConfig
 from src.etl.CleanData import CleanData
 from src.etl.CleanConfig import CleanConfig
 class Processor:
@@ -11,9 +10,6 @@ class Processor:
     def run(self, n_top, start_year, end_year):
         players_data = self.fetch_client.get_all_top_players(self.modalities, n_top)
         players_list = self.helper.extract_unique_usernames(players_data)
-
-        print(players_data)
-        print(players_list)
 
         self.fetch_client.fetch_and_store_games(start_year, end_year, n_top)
 

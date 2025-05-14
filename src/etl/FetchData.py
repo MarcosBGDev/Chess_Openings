@@ -137,3 +137,12 @@ class FetchData:
 
         players_list = self.helper.extract_unique_usernames(players_data)
         return players_list
+
+
+    #||||||||||||||||Obtener información sobre las bases de datos
+    @staticmethod
+    def get_database_names(prefix="ChessDB"):
+        db_manager = MongoDBManager()
+        dbs = db_manager.list_available_dbs(prefix)
+        db_manager.close_connection()
+        return dbs

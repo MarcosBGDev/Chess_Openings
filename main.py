@@ -9,12 +9,13 @@ helper = Helpers()
 
 modalities = ["live_blitz", "live_bullet", "live_rapid"]
 clean_modalities = ["blitz", "bullet", "rapid"]
+
 """
 n_top=2
 start_year = 2023
 end_year = 2024
 """
-
+"""
 n_top, start_year, end_year = ParameterValidator.ask_parameters()
 
 
@@ -30,5 +31,5 @@ config = CleanConfig(start_year, end_year, n_top, clean_modalities, "white")
 clean_data = CleanData(config)
 clean_data.clean()
 
-
+"""
 

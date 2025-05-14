@@ -1,4 +1,6 @@
 import datetime
+import re
+
 
 class Helpers:
     def __init__(self):
@@ -18,3 +20,13 @@ class Helpers:
     def get_current_year() -> int:
         """ Devuelve el año actual"""
         return datetime.datetime.now().year
+
+    @staticmethod
+    def get_years_from_db_name(db_name):
+        match = re.search(r'ChessDB_(\d{4})-(\d{4})', db_name)
+        if match:
+            start_year = match.group(1)
+            end_year = match.group(2)
+            return start_year, end_year
+        else:
+            return None, None
