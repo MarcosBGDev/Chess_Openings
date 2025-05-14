@@ -6,13 +6,13 @@ class MongoDBManager:
         self.client = MongoClient(self.uri)
         self.db = self.client[db_name]
 
-    def insert_game(self, collection_name, game_data):
+    def insert_document(self, collection_name, document_data):
         collection = self.db[collection_name]
-        collection.insert_one(game_data)
+        collection.insert_one(document_data)
 
-    def insert_many_games(self, collection_name, games):
+    def insert_many_documents(self, collection_name, documents):
         collection = self.db[collection_name]
-        collection.insert_many(games)
+        collection.insert_many(documents)
 
     def get_all_documents(self, collection_name, query):
         collection = self.db[collection_name]

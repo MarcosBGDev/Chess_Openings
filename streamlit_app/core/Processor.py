@@ -15,7 +15,7 @@ class Processor:
         print(players_data)
         print(players_list)
 
-        self.fetch_client.fetch_and_store_games(players_list, start_year, end_year, n_top)
+        self.fetch_client.fetch_and_store_games(start_year, end_year, n_top)
 
         config = CleanConfig(start_year, end_year, n_top, self.clean_modalities, "white")
         clean_data = CleanData(config)

@@ -8,6 +8,18 @@ class FetchData:
 
     #||||||||||||||||Obtener jugadores de la API|||||||||||||||||||||||||||
 
+    def get_all_top_players(self, modalities, top_n):
+        """ Obtiene una lista de datos de jugadores """
+        leaderboard_data = self.chesscom_client.send_leaderboards_request()
+        if not leaderboard_data:
+            return []
+
+        top_players = []
+        for modality in modalities:
+            players = self.extract_top_players_data(leaderboard_data, modality, top_n)
+            top_players.extend(players)
+        return top_players
+
     def extract_top_players_data(self, leaderboard_data, modality, top_n):
         """ Devuelve una lista de datos de jugadores (username, score, etc.) de una modalidad concreta. """
         if modality not in leaderboard_data:
@@ -30,40 +42,30 @@ class FetchData:
             "country": player.get("country"),
         }
 
-    def get_all_top_players(self, modalities, top_n):
-        """ Obtiene una lista de datos de jugadores """
-        leaderboard_data = self.chesscom_client.send_leaderboards_request()
-        if not leaderboard_data:
-            return []
 
-        top_players = []
-        for modality in modalities:
-            players = self.extract_top_players_data(leaderboard_data, modality, top_n)
-            top_players.extend(players)
-        return top_players
+
+    @staticmethod
+    def store_players_data(players_list, start_year, end_year, n_top):
+        """
+        Almacena los datos de los jugadores en la misma base de datos que las partidas.
+        """
+        db_name = f"ChessDB_{start_year}-{end_year}_Top_{n_top}"
+        db_manager = MongoDBManager(db_name)
+        db_manager.insert_many_documents("players", players_list)
+        db_manager.close_connection()
 
     #||||||||||||||||||||||||||||||||||||||||||||||||
 
     #||||||||||||||||Obtener partidas de la API||||||||||||||||||||||||||
 
-    def get_all_games(self, player, year):
-        """
-        Devuelve una lista de partidas jugadas por un jugador durante un año.
-        Hace uso de un generador (yield) para no cargar todas las partidas en memoria.
-        """
-        month_list = self.helper.get_months()
-        year = str(year)
-        for month in month_list:
-            games = self.chesscom_client.send_games_request(player, month, year)
-            for game in games:
-                yield game
-
-    def fetch_and_store_games(self, players_list, start_year, end_year, n_top):
+    def fetch_and_store_games(self, start_year, end_year, n_top):  #--------------
         """
         Recopila y guarda todas las partidas de todos los jugadores en un periodo de tiempo
         """
         db_name = f"ChessDB_{start_year}-{end_year}_Top_{n_top}"
         db_manager = MongoDBManager(db_name)
+        players_data = db_manager.get_all_documents("players",{})
+        players_list = self.helper.extract_unique_usernames(players_data)
 
         for player in players_list:
             self.process_player_games(player, start_year, end_year, db_manager)
@@ -80,8 +82,19 @@ class FetchData:
             for game in games:
                 if self.is_valid_game(game):
                     new_game = self.prepare_game_for_insert(game, player)
-                    db_manager.insert_game("raw_games", new_game)
+                    db_manager.insert_document("raw_games", new_game)
 
+    def get_all_games(self, player, year):
+        """
+        Devuelve una lista de partidas jugadas por un jugador durante un año.
+        Hace uso de un generador (yield) para no cargar todas las partidas en memoria.
+        """
+        month_list = self.helper.get_months()
+        year = str(year)
+        for month in month_list:
+            games = self.chesscom_client.send_games_request(player, month, year)
+            for game in games:
+                yield game
     @staticmethod
     def is_valid_game(game):
         """
@@ -113,3 +126,14 @@ class FetchData:
         if isinstance(pgn, str):
             return pgn.split("\n\n")[0]
         return ""
+
+    # ||||||||||||||||Obtener partidas de la Base de datos||||||||||||||||||||||||||
+
+    def get_players_usernames_from_database(self, db_name):
+        db_manager = MongoDBManager(db_name)
+        players_data = db_manager.get_all_documents("players", {})
+
+        db_manager.close_connection()
+
+        players_list = self.helper.extract_unique_usernames(players_data)
+        return players_list

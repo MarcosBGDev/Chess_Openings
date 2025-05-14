@@ -30,7 +30,7 @@ class CleanData:
 
         for game in filtered_games:
             cleaned_game = self.build_cleaned_game(game)
-            db_manager.insert_game("clean_games", cleaned_game)
+            db_manager.insert_document("clean_games", cleaned_game)
 
         db_manager.close_connection()
 
