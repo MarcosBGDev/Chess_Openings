@@ -59,7 +59,7 @@ class CleanData:
                 if parts:
                     raw_name = parts[-1]
                     name = raw_name.replace("-", " ")
-                    name = re.split(r"\s\d+.*", name)[0].strip()  # Eliminar el texto después del primer número
+                    name = re.split(r"\.\.\..*|\s\d+\..*|\s\d+.*", name)[0].strip()  # Eliminar el texto después del primer número
                     name = re.sub(r"\swith.*$", "", name).strip()  # Eliminar cualquier cosa después de "with"
                     return name
             except ValueError:

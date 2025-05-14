@@ -18,6 +18,10 @@ class MongoDBManager:
         collection = self.db[collection_name]
         return collection.find(query)
 
+    def list_available_dbs(self, prefix="ChessDB"):
+        all_dbs = self.client.list_database_names()
+        return [db for db in all_dbs if db.startswith(prefix)]
+
     def drop_collection(self, collection_name):
         self.db[collection_name].drop()
 

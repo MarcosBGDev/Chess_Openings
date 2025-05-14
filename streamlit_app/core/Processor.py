@@ -1,6 +1,6 @@
 import src.etl.CleanConfig
 from src.etl.CleanData import CleanData
-
+from src.etl.CleanConfig import CleanConfig
 class Processor:
     def __init__(self, modalities, clean_modalities, fetch_client, helper):
         self.modalities = modalities
@@ -17,6 +17,6 @@ class Processor:
 
         self.fetch_client.fetch_and_store_games(players_list, start_year, end_year, n_top)
 
-        config = src.etl.CleanConfig.CleanConfig(start_year, end_year, n_top, self.clean_modalities, "white")
+        config = CleanConfig(start_year, end_year, n_top, self.clean_modalities, "white")
         clean_data = CleanData(config)
         clean_data.clean()
