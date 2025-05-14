@@ -1,12 +1,7 @@
-from core.InitialParams import InitialParams
-from core.Segmentation import Segmentation
-from core.Visualization import Visualization
+from streamlit_app.core.InitialParams import InitialParams
+from streamlit_app.core.Segmentation import Segmentation
+from streamlit_app.core.Visualization import Visualization
 import streamlit as st
-import sys
-import os
-
-# Añade el directorio raíz del proyecto al sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 class StreamlitApp:
     def __init__(self):

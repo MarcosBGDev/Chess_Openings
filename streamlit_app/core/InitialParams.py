@@ -1,4 +1,4 @@
-#from .Processor import Processor
+from .Processor import Processor
 
 import streamlit as st
 from src.etl.FetchData import FetchData
