@@ -1,4 +1,4 @@
-from src import MongoDBManager
+from src import MongoDBManager, Helpers
 from src.storage.DatabaseUtils import DatabaseUtils
 from streamlit_app.core.DatasetSelector import DatasetSelector
 from streamlit_app.core.InitialParams import InitialParams
@@ -13,7 +13,8 @@ class Processor:
         self.dataset_selector = DatasetSelector()
         self.parameters = InitialParams()
         self.modalities = ["live_blitz", "live_bullet", "live_rapid"]
-        self.database_utils= DatabaseUtils()
+        self.db_utils= DatabaseUtils()
+        self.helper = Helpers()
         self.db_manager= None
 
     def ejecutar(self):
@@ -40,12 +41,18 @@ class Processor:
                 with st.container():
                     self.db_manager= MongoDBManager(selected_db)
                     players_list = self.db_manager.get_distinct_field_values("players","username")
-                    self.segmentation = Segmentation(selected_db, players_list)
+
+                    modalities = self.db_utils.get_available_modalities(selected_db)
+                    clean_modalities = ""
+                    start_year, end_year = self.db_utils.get_years_from_db_name(selected_db)
+                    years = list(range(int(start_year), int(end_year) + 1))
+
+                    self.segmentation = Segmentation(modalities, years, players_list)
                     modality, year, player = self.segmentation.show()
 
                 # Fila inferior: Visualizaciones basadas en segmentación
                 with st.container():
-                    df = self.database_utils.get_dataframe_from_collection(selected_db, "clean_games")
+                    df = self.db_utils.get_dataframe_from_collection(selected_db, "clean_games")
                     visualization = Visualization(df)
                     visualization.show()
                     visualization.show_opening_graph(modality, year, player)

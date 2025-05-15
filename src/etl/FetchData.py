@@ -42,8 +42,6 @@ class FetchData:
             "country": player.get("country"),
         }
 
-
-
     @staticmethod
     def store_players_data(players_list, start_year, end_year, n_top):
         """

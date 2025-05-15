@@ -24,12 +24,13 @@ class DatabaseUtils:
         else:
             return None, None
 
-    @staticmethod
-    def get_available_modalities(db_name: str) -> list[str]:
+
+    def get_available_modalities(self,db_name: str) -> list[str]:
         client = MongoDBManager(db_name)
         collection = client.db["players"]
         modalities = collection.distinct("modality")
-        return sorted(modalities)
+        clean_modalities = self.fix_modalities(modalities)
+        return sorted(clean_modalities)
 
     @staticmethod
     def get_dataframe_from_collection(db_name, collection_name):
@@ -38,5 +39,16 @@ class DatabaseUtils:
         df = pd.DataFrame(docs)
         columns_to_keep = ["opening_name", "white_result", "end_date", "time_class", "associated_username"]  # ajusta si usas otros nombres
         df = df[columns_to_keep]
-
         return df
+
+
+    @staticmethod
+    def fix_modalities(modalities):
+        # Quitar el "live_" inicial de una modalidad
+        fixed_modalities = []
+        for modality in modalities:
+            if modality.startswith("live_"):
+                fixed_modalities.append(modality[5:])
+            else:
+                fixed_modalities.append(modality)
+        return fixed_modalities
