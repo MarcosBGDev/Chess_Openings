@@ -1,7 +1,7 @@
-from .Processor import Processor
-
 import streamlit as st
 from src.etl.FetchData import FetchData
+from src.etl.CleanConfig import CleanConfig
+from src.etl.CleanData import CleanData
 from src.utils.Helpers import Helpers
 
 class InitialParams:
@@ -9,16 +9,10 @@ class InitialParams:
         self.modalities = ["live_blitz", "live_bullet", "live_rapid"]
         self.clean_modalities = ["blitz", "bullet", "rapid"]
         self.fetch_data_client = FetchData()
+        self.clean_data_client = None
         self.helper = Helpers()
-        self.processor = Processor(
-            self.modalities,
-            self.clean_modalities,
-            self.fetch_data_client,
-            self.helper
-        )
 
     def show(self):
-        # Estado de desactivación tras procesamiento
         if "procesado" not in st.session_state:
             st.session_state.procesado = False
 
@@ -48,16 +42,20 @@ class InitialParams:
         # Botón de procesar
         if valid:
             if st.button("Procesar"):
-                self.processor.run(n_players, start_year, end_year)
                 st.session_state.procesado = True
+                players_data = self.fetch_data_client.get_all_top_players(self.modalities, n_players)
+                self.fetch_data_client.store_players_data(players_data, start_year, end_year, n_players)
+
+                self.fetch_data_client.fetch_and_store_games(start_year, end_year, n_players)
+                config = CleanConfig(start_year, end_year, n_players, self.clean_modalities, "white")
+                clean_data_client = CleanData(config)
+                clean_data_client.clean()
+
                 st.success("Parámetros procesados correctamente")
         else:
             st.button("Procesar", disabled=True)
 
         return {
-            "n_players": n_players,
-            "start_year": start_year,
-            "end_year": end_year,
             "valid": valid,
             "procesado": st.session_state.procesado
         }

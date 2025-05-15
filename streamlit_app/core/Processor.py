@@ -1,18 +1,57 @@
-from src.etl.CleanData import CleanData
-from src.etl.CleanConfig import CleanConfig
+from src import MongoDBManager
+from src.storage.DatabaseUtils import DatabaseUtils
+from streamlit_app.core.DatasetSelector import DatasetSelector
+from streamlit_app.core.InitialParams import InitialParams
+from streamlit_app.core.Segmentation import Segmentation
+from streamlit_app.core.Visualization import Visualization
+import streamlit as st
+
 class Processor:
-    def __init__(self, modalities, clean_modalities, fetch_client, helper):
-        self.modalities = modalities
-        self.clean_modalities = clean_modalities
-        self.fetch_client = fetch_client
-        self.helper = helper
+    def __init__(self):
+        self.visualization = None
+        self.segmentation = None
+        self.dataset_selector = DatasetSelector()
+        self.parameters = InitialParams()
+        self.modalities = ["live_blitz", "live_bullet", "live_rapid"]
+        self.database_utils= DatabaseUtils()
+        self.db_manager= None
 
-    def run(self, n_top, start_year, end_year):
-        players_data = self.fetch_client.get_all_top_players(self.modalities, n_top)
-        players_list = self.helper.extract_unique_usernames(players_data)
+    def ejecutar(self):
+        st.set_page_config(layout="wide")
 
-        self.fetch_client.fetch_and_store_games(start_year, end_year, n_top)
+        # Dividir pantalla en 2 columnas
+        col_left, col_right = st.columns([1, 2], gap="large")
 
-        config = CleanConfig(start_year, end_year, n_top, self.clean_modalities, "white")
-        clean_data = CleanData(config)
-        clean_data.clean()
+        # --- Izquierda ---
+        with col_left:
+            # Fila superior: Parámetros iniciales (crear sesión, procesar)
+            with st.container():
+                params = self.parameters.show()
+
+            # Fila inferior: Selección de base de datos
+            with st.container():
+
+                selected_db = self.dataset_selector.show()
+
+        # --- Derecha ---
+        with col_right:
+            if selected_db:
+                # Fila superior: Segmentación según datos de BD
+                with st.container():
+                    self.db_manager= MongoDBManager(selected_db)
+                    players_list = self.db_manager.get_distinct_field_values("players","username")
+                    self.segmentation = Segmentation(selected_db, players_list)
+                    modality, year, player = self.segmentation.show()
+
+                # Fila inferior: Visualizaciones basadas en segmentación
+                with st.container():
+                    df = self.database_utils.get_dataframe_from_collection(selected_db, "clean_games")
+                    visualization = Visualization(df)
+                    visualization.show()
+                    visualization.show_opening_graph(modality, year, player)
+            else:
+                with st.container():
+                    st.info("Selecciona una base de datos para visualizar los datos.")
+
+
+

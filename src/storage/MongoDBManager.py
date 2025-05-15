@@ -18,6 +18,11 @@ class MongoDBManager:
         collection = self.db[collection_name]
         return collection.find(query)
 
+    def get_distinct_field_values(self, collection_name: str, field_name: str) -> list:
+        """ Devuelve un determinado atributo de todos los documentos de una colección"""
+        collection = self.db[collection_name]
+        return collection.distinct(field_name)
+
     def list_available_dbs(self, prefix="ChessDB"):
         all_dbs = self.client.list_database_names()
         return [db for db in all_dbs if db.startswith(prefix)]
