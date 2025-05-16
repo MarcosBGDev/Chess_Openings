@@ -6,7 +6,6 @@ from src import MongoDBManager
 class DatabaseUtils:
     pass
 
-
     @staticmethod
     def get_database_names(prefix="ChessDB"):
         db_manager = MongoDBManager()
@@ -37,7 +36,7 @@ class DatabaseUtils:
         manager = MongoDBManager(db_name)
         docs = list(manager.get_all_documents(collection_name, {}))
         df = pd.DataFrame(docs)
-        columns_to_keep = ["opening_name", "white_result", "end_date", "time_class", "associated_username"]  # ajusta si usas otros nombres
+        columns_to_keep = ["opening_name", "white_result", "end_date", "time_class", "associated_username"]
         df = df[columns_to_keep]
         return df
 

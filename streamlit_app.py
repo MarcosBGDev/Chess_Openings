@@ -1,9 +1,9 @@
-from streamlit_app.core import Processor
+from streamlit_app.layout.InterfaceManager import InterfaceManager
 
 class StreamlitApp:
     def __init__(self):
-        self.processor = Processor()
+        self.interface_manager = InterfaceManager()
 
 if __name__ == "__main__":
     app = StreamlitApp()
-    app.processor.ejecutar()
+    app.interface_manager.execute()

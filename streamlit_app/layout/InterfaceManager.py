@@ -1,12 +1,12 @@
 from src import MongoDBManager, Helpers
 from src.storage.DatabaseUtils import DatabaseUtils
-from streamlit_app.core.DatasetSelector import DatasetSelector
-from streamlit_app.core.InitialParams import InitialParams
-from streamlit_app.core.Segmentation import Segmentation
-from streamlit_app.core.Visualization import Visualization
+from streamlit_app.layout.DatasetSelector import DatasetSelector
+from streamlit_app.layout.InitialParams import InitialParams
+from streamlit_app.layout.Segmentation import Segmentation
+from streamlit_app.layout.Visualization import Visualization
 import streamlit as st
 
-class Processor:
+class InterfaceManager:
     def __init__(self):
         self.visualization = None
         self.segmentation = None
@@ -17,7 +17,7 @@ class Processor:
         self.helper = Helpers()
         self.db_manager= None
 
-    def ejecutar(self):
+    def execute(self):
         st.set_page_config(layout="wide")
 
         # Dividir pantalla en 2 columnas
@@ -43,7 +43,6 @@ class Processor:
                     players_list = self.db_manager.get_distinct_field_values("players","username")
 
                     modalities = self.db_utils.get_available_modalities(selected_db)
-                    clean_modalities = ""
                     start_year, end_year = self.db_utils.get_years_from_db_name(selected_db)
                     years = list(range(int(start_year), int(end_year) + 1))
 
@@ -55,7 +54,9 @@ class Processor:
                     df = self.db_utils.get_dataframe_from_collection(selected_db, "clean_games")
                     visualization = Visualization(df)
                     visualization.show()
+                    visualization.show_summary_card(modality, year, player)
                     visualization.show_opening_graph(modality, year, player)
+                    visualization.show_activity_over_time(modality, year, player)
             else:
                 with st.container():
                     st.info("Selecciona una base de datos para visualizar los datos.")
