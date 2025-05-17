@@ -18,7 +18,11 @@ class InterfaceManager:
         self.db_manager= None
 
     def execute(self):
-        st.set_page_config(layout="wide")
+        st.set_page_config(
+            page_title="Chess KDD Project",
+            page_icon="streamlit_app/assets/favicon.ico",
+            layout="wide"
+        )
 
         # Dividir pantalla en 2 columnas
         col_left, col_right = st.columns([1, 2], gap="large")

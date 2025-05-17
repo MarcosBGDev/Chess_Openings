@@ -10,7 +10,6 @@ class Visualization:
         st.markdown("### Visualizaciones")
 
 
-
     def show_opening_graph(self, modality, year, player):
         df = self.filter_data(modality, year, player)
 
@@ -27,10 +26,7 @@ class Visualization:
 
     def show_summary_card(self, modality, year, player):
         df = self.filter_data(modality, year, player)
-
         total_games = len(df)
-
-        # Mostrar solo una tarjeta
         st.metric("Total de partidas", total_games)
 
     def show_activity_over_time(self, modality, year, player):
