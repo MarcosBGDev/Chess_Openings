@@ -1,4 +1,4 @@
-from streamlit_app.layout.InterfaceManager import InterfaceManager
+from src.app.layout.InterfaceManager import InterfaceManager
 
 class StreamlitApp:
     def __init__(self):

@@ -1,9 +1,9 @@
 from src import MongoDBManager, Helpers
 from src.storage.DatabaseUtils import DatabaseUtils
-from streamlit_app.layout.DatasetSelector import DatasetSelector
-from streamlit_app.layout.InitialParams import InitialParams
-from streamlit_app.layout.Segmentation import Segmentation
-from streamlit_app.layout.Visualization import Visualization
+from src.app.layout.DatasetSelector import DatasetSelector
+from src.app.layout.InitialParams import InitialParams
+from src.app.layout.Segmentation import Segmentation
+from src.app.layout.Visualization import Visualization
 import streamlit as st
 
 class InterfaceManager:
@@ -20,7 +20,7 @@ class InterfaceManager:
     def execute(self):
         st.set_page_config(
             page_title="Chess KDD Project",
-            page_icon="streamlit_app/assets/favicon.ico",
+            page_icon="app/assets/favicon.ico",
             layout="wide"
         )
 

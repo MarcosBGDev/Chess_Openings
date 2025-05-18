@@ -66,4 +66,4 @@ class Visualization:
         if player != "Todos":
             df = df[df["associated_username"] == player]
 
-        return df
+        return df.copy()
