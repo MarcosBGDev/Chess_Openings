@@ -9,15 +9,18 @@ class Visualization:
     def show():
         st.markdown("### Visualizaciones")
 
-
     def show_opening_graph(self, modality, year, player):
         df = self.filter_data(modality, year, player)
+
+        if df is None or df.empty:
+            st.warning("No hay datos disponibles para el gráfico de aperturas")
+            return
 
         aggregated = df["opening_name"].value_counts().head(10)
         st.markdown("#### Aperturas más jugadas")
 
         fig, ax = plt.subplots()
-        aggregated.sort_values().plot(kind='barh', ax=ax, color='skyblue')  # barras horizontales
+        aggregated.sort_values().plot(kind='barh', ax=ax, color='skyblue')
         ax.set_xlabel("Número de partidas")
         ax.set_ylabel("Apertura")
         ax.set_title("Top 10 aperturas más jugadas")
@@ -26,6 +29,11 @@ class Visualization:
 
     def show_summary_card(self, modality, year, player):
         df = self.filter_data(modality, year, player)
+
+        if df is None or df.empty:
+            st.warning("No hay datos disponibles para el total de partidas.")
+            return
+
         total_games = len(df)
         st.metric("Total de partidas", total_games)
 
@@ -33,7 +41,7 @@ class Visualization:
         df = self.filter_data(modality, year, player)
 
         if df.empty:
-            st.warning("No hay datos disponibles con los filtros seleccionados.")
+            st.warning("No hay datos disponibles para el gráfico de actividad")
             return
 
         # Asegurar que end_date sea datetime
@@ -57,9 +65,5 @@ class Visualization:
 
         if player != "Todos":
             df = df[df["associated_username"] == player]
-
-        if df.empty:
-            st.warning("No hay datos disponibles con los filtros seleccionados.")
-            return
 
         return df

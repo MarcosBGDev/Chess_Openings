@@ -10,6 +10,10 @@ class MongoDBManager:
         collection = self.db[collection_name]
         collection.insert_one(document_data)
 
+    def drop_database_if_exists(self, db_name: str):
+        if db_name in self.client.list_database_names():
+            self.client.drop_database(db_name)
+
     def insert_many_documents(self, collection_name, documents):
         collection = self.db[collection_name]
         collection.insert_many(documents)

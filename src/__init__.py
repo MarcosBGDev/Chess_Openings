@@ -1,4 +1,4 @@
-from .api.Chesscom import Chesscom
+from .connectors.Chesscom import Chesscom
 from .etl.CleanConfig import CleanConfig
 from .etl.FetchData import FetchData
 from .etl.CleanData import CleanData

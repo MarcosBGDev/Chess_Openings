@@ -1,4 +1,4 @@
-from src.api.Chesscom import Chesscom
+from src.connectors.Chesscom import Chesscom
 from src.utils.Helpers import Helpers
 from src.storage.MongoDBManager import MongoDBManager
 
