@@ -11,9 +11,10 @@ class InterfaceManager:
         self.visualization = None
         self.segmentation = None
         self.dataset_selector = DatasetSelector()
-        self.parameters = InitialParams()
         self.modalities = ["live_blitz", "live_bullet", "live_rapid"]
-        self.db_utils= DatabaseUtils()
+        self.clean_modalities = ["blitz", "bullet", "rapid"]
+        self.parameters = InitialParams(self.modalities, self.clean_modalities)
+        self.db_utils = DatabaseUtils()
         self.helper = Helpers()
         self.db_manager= None
 

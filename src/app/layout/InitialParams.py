@@ -5,9 +5,9 @@ from src.etl.CleanData import CleanData
 from src.utils.Helpers import Helpers
 
 class InitialParams:
-    def __init__(self):
-        self.modalities = ["live_blitz", "live_bullet", "live_rapid"]
-        self.clean_modalities = ["blitz", "bullet", "rapid"]
+    def __init__(self, modalities, clean_modalities):
+        self.modalities = modalities
+        self.clean_modalities = clean_modalities
         self.fetch_data_client = FetchData()
         self.clean_data_client = None
         self.helper = Helpers()
